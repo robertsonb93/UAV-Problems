@@ -1,0 +1,70 @@
+//Problem will utilize a breadth first search and mark each neighbor of a node as 'color'
+//if a node finds a colored neighbor with the same color will return false and display not bicolorable
+// else if fully executed, default to display bicolorable
+//2 vector that have a seen and a color component
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void initialize();
+bool DFS(int i,int curColr);
+
+vector<vector<int> > neighbors;
+int colors[201]; //1 is one color 2 is the other
+
+
+int main()
+{
+	int numNodes;
+ while(cin>>numNodes && numNodes)
+ {
+ 	initialize();
+ 	neighbors.resize(numNodes);
+ 	int edges;
+ 	cin>>edges;
+ 	while(edges--)
+ 	{
+ 	int node1,node2;
+ 	cin>>node1>>node2;
+ 	neighbors[node1].push_back(node2);
+ 	}
+
+
+	if(!DFS(0,1))
+		cout<<"NOT ";
+
+	cout<<"BICOLORABLE."<<endl;
+	}
+
+	return 0;
+}
+
+
+
+
+void initialize()
+{
+	fill(colors,colors+201,-1);
+	colors[0]=1;
+	neighbors.clear();
+}
+
+
+
+bool DFS(int i,int curColr)
+{
+	//base case, when the current node has a neighbor the same color 
+	for(int k=0;k<neighbors[i].size();k++)
+	{
+		if(colors[neighbors[i][k]] != colors[i])
+		{
+			if(colors[neighbors[i][k]] < 0)
+			{
+			colors[neighbors[i][k]]= (curColr+1)%2;
+			return DFS(neighbors[i][k],(curColr+1)%2);
+			}
+		}
+		else return false;		
+	}return true;
+}
