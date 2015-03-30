@@ -1,0 +1,134 @@
+//leap year has 366 days vs 365
+//leap year is divisble by 4, and if multiple of 100, div by 400
+//(29) leap year     30* check after this month for leap year
+//31, 28(29), 31, 30*, 31, 30, 31, 31, 30,31,30,31
+/********************************************************************
+I intend to just count through the days up to 7*40, and increment the months
+and year accordingly
+********************************************************************/
+#include <iostream>
+#include <algorithm>
+#include <string>
+
+void checkLeap(const int &intmonth,const int &intyear,bool &isLeapYear);
+void countTheDays(int &intday,int &intmonth,int &intyear,const bool &isLeap);
+
+   using namespace std;
+
+
+int daysOfMonth[]= {31,28,31,30,31,30,31,31,30,31,30,31};
+int main()
+{
+  
+   int N;
+   cin>>N;
+   cin.ignore(1,'\n');
+  
+   string zodiac[] ={"capricorn","aquarius","pisces","aries","taurus","gemini",
+		     "cancer","leo","virgo","libra","scorpio","sagittarius",
+		     "capricorn"};
+
+//This will tell you where to go based on month, and if you are < a day
+   //if you are less then data[month].first go to zodiac[date[month].second]
+   // if you are equal or greater, go to second +1;
+   pair<int,int> zodiacDate[]={{0,0},{21,0},{20,1},{21,2},{21,3},{22,4},{22,5},
+			       {23,6},{22,7},{24,8},{24,9},{23,10},{23,11}};
+   
+   for(int i=0;i<N;i++)
+   {     
+      string input,day="",month="",year="";
+
+      //Grab date, parse dates into m,d,y , then convert to integers
+      getline(cin,input);
+      for(int k=0;k<input.size();k++)
+      {
+	 if(k<2)
+	    month+=(input[k]);
+	 else if(k>=2 && k<4)
+	    day+=(input[k]);
+	 else
+	    year+=(input[k]);
+      }
+      int intday=stoi(day);
+      int intmonth=stoi(month);
+      int intyear=stoi(year);
+      bool isLeapYear=false;
+
+      checkLeap(intmonth,intyear,isLeapYear);
+      countTheDays(intday,intmonth,intyear,isLeapYear);
+
+      string m="",d="",y="";
+
+      if(intmonth<10) m="0";
+      if(intday<10) d="0";
+      if(intyear<1000) y+="0";
+      if(intyear<100) y+="0";
+      if(intyear<10) y+="0";
+      
+      cout<<i+1<<" "<<m<<intmonth<<"/"<<d<<intday<<"/"<<y<<intyear<<" ";     
+      if(intday < zodiacDate[intmonth].first)
+      {	 
+	 cout<<zodiac[zodiacDate[intmonth].second];
+      }
+      else	    
+	 cout<<zodiac[zodiacDate[intmonth].second+1];
+      cout<<endl;
+   }
+   
+   return 0;
+}
+
+/******************************************************/
+void checkLeap(const int &intmonth,const int &intyear,bool &isLeapYear)
+{
+   if(intmonth <=2)
+   {
+   if(intyear%400 ==0)
+      isLeapYear=true;
+   
+   if(intyear % 4 ==0)//born in same year, check if
+      if(intyear % 100 != 0)        //feb will have 28 or 29
+       isLeapYear=true;
+   }
+
+   if(intmonth>=3)
+   {
+      if((intyear+1) % 400 ==0)
+	 isLeapYear=true;
+
+      if((intyear+1) % 4 ==0) // born in next year, check feb
+	 if((intyear+1) %100 != 0)
+	    isLeapYear=true;
+   }
+
+}
+
+
+/********************************************************************/
+void countTheDays(int &intday,int &intmonth,int &intyear,const bool &isLeap)
+{
+ //just count out each of the days for the date, rolling over m,y, as need
+      for(int k=0;k<(7*40);k++)
+      {
+	 intday++;
+	 if(isLeap && intmonth == 2)
+	 {
+	    if(intday > 29)
+	    {
+	       intday-=29;
+	       intmonth++;
+	    }
+	 }	 
+	else if(intday > daysOfMonth[intmonth-1])
+	 {
+	    intday-=daysOfMonth[intmonth-1];
+	    intmonth++;
+	 }
+
+	 if(intmonth > 12)
+	 {
+	    intmonth-=12;
+	    intyear++;
+	 }
+      }
+}
