@@ -1,0 +1,67 @@
+//Plan on using an array, representing each finger and if it is pressed.
+//if it goes from a 0 -> 1 then increment a counter.
+
+
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+//
+int noteFingers[14][10]={
+   {0,1,1,0,0,0,0,0,0,0}, //a
+   {0,1,0,0,0,0,0,0,0,0}, //b
+   {0,1,1,1,0,0,1,1,1,1}, //c
+   {0,1,1,1,0,0,1,1,1,0}, //d
+   {0,1,1,1,0,0,1,1,0,0}, //e
+   {0,1,1,1,0,0,1,0,0,0}, //f
+   {0,1,1,1,0,0,0,0,0,0}, //g
+   {1,1,1,0,0,0,0,0,0,0}, //A
+   {1,1,0,0,0,0,0,0,0,0}, //B
+   {0,0,1,0,0,0,0,0,0,0}, //C
+   {1,1,1,1,0,0,1,1,1,0}, //D
+   {1,1,1,1,0,0,1,1,0,0}, //E
+   {1,1,1,1,0,0,1,0,0,0}, //F
+   {1,1,1,1,0,0,0,0,0,0}  //G
+
+ 
+};
+
+//could recieve from 0<=n<=200 notes
+int main()
+{
+   int t;
+   cin>>t;
+   cin.ignore(1,'\n');
+   for(int i=0;i<t;i++)
+   {
+      int fingerPressed[10] = {0,0,0,0,0,0,0,0,0,0};
+      int keysPressed[10]   = {0,0,0,0,0,0,0,0,0,0};
+      int row =0;
+      string notes;
+
+      getline(cin,notes);
+
+      for(int k=0;k<notes.size();k++)
+      {
+	 if( notes[k] < 'a') //Is capital note	  
+	    row= notes[k]-'A'+7; //the row in noteFingers
+	 else
+	    row=notes[k]-'a';
+	 for(int j=0;j<10;j++)
+	 {
+	    if(noteFingers[row][j]>fingerPressed[j])
+	       keysPressed[j]++;
+	    fingerPressed[j] = noteFingers[row][j];
+	 }
+      }
+	 for(int j=0;j<10;j++)
+	 {
+	    cout<<keysPressed[j];
+	    if(j!=9)cout<<" ";
+	 }
+	    cout<<endl;
+
+   }
+      return 0;
+}
