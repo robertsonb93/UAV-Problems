@@ -1,0 +1,112 @@
+#include <iostream>
+#include <string>
+
+
+using namespace std;
+
+// UnionFind class -- based on Howard Cheng's C code for UnionFind
+// Modified to use C++ by Rex Forsyth, Oct 22, 2003
+//
+// Constuctor -- builds a UnionFind object of size n and initializes it
+// find -- return index of x in the UnionFind
+// merge -- updates relationship between x and y in the UnionFind
+
+
+class UnionFind
+{
+      struct UF { int p; int rank; };
+
+   public:
+      UnionFind(int n) {          // constructor
+	 howMany = n;
+	 uf = new UF[howMany];
+	 for (int i = 0; i < howMany; i++) {
+	    uf[i].p = i;
+	    uf[i].rank = 0;
+	 }
+      }
+
+      ~UnionFind() {
+         delete[] uf;
+      }
+
+      int find(int x) { return find(uf,x); }        // for client use
+      
+      bool merge(int x, int y) {
+	 int res1, res2;
+	 res1 = find(uf, x);
+	 res2 = find(uf, y);
+	 if (res1 != res2) {
+	    if (uf[res1].rank > uf[res2].rank) {
+	       uf[res2].p = res1;
+	    }
+	    else {
+	       uf[res1].p = res2;
+	       if (uf[res1].rank == uf[res2].rank) {
+		  uf[res2].rank++;
+	       }
+	    }
+	    return true;
+	 }
+	 return false;
+      }
+      
+   private:
+      int howMany;
+      UF* uf;
+
+      int find(UF uf[], int x) {     // recursive funcion for internal use
+	 if (uf[x].p != x) {
+	    uf[x].p = find(uf, uf[x].p);
+	 }
+	 return uf[x].p;
+      }
+};
+
+/*************************************************************************/
+//MAIN FUNCTION
+//************************************************************************/
+int main()
+{
+   int testCases;
+   cin>>testCases;
+   
+   while(testCases != 0)
+   {
+      int N;
+      cin>>N;
+      
+      UnionFind UF(N+1);
+      int x,y,success=0,notSuccess=0;
+      char character,junk;
+      bool lastLine = false;
+//Merge x,y when character is a c, otherwise it is a q, and should be checked
+      //if x,y have been merged
+      //the case is complete when you encounter a blank line. hence remove
+      //the '\n' of the input and check if the next line is a '\n' aswell.
+
+      while(!lastLine)
+      {
+	 cin>>character>>x>>y;
+	 if(character == 'c')
+	    UF.merge(x,y);
+	 
+	 else if(UF.find(x) == UF.find(y))
+	    success++;	 
+	 else notSuccess++;
+
+	 junk=cin.get();
+	 junk =cin.peek();
+	 if(junk != 'c' && junk != 'q')
+	 {
+	    lastLine = true;
+	 }
+      }
+      
+      cout<<success<<","<<notSuccess<<endl;
+      testCases--;
+      if(testCases > 0)
+	 cout<<endl;
+   }
+   return 0;
+}
