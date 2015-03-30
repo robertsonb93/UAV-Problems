@@ -1,0 +1,78 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+void solver(int n, int m, char outArray[][103]);
+
+int main()
+{
+
+   int n=1,m=1;
+   char outArray[103][103];
+   int x=0;
+   while(cin>>n && cin>>m && (n !=0 || m != 0))
+   {
+      x++;
+      
+      for(int i =0;i<=n;i++)
+	 for(int k=0;k<=m;k++)
+	    outArray[i][k] = '0';
+	  
+      
+      solver(n,m,outArray);
+
+
+      //display everything between R1,C1 -> RN,CM
+      if(x!=1)cout<<endl;
+      cout<<"Field #"<<x<<":"<<endl;
+      for(int i=1;i<=n;i++)
+      {
+	 for(int k=1;k<=m;k++)
+	    cout<<outArray[i][k];
+	cout<<endl;
+      }
+   }
+   return 0;
+};
+
+void solver(int n, int m, char outArray[][103])
+{
+   vector<int> posVector;
+   string inputLine;
+   int pos=m;
+   
+   cin.ignore(10,'\n');
+   
+   for(int k=0;k<n;k++)
+   {
+      getline(cin,inputLine);
+      for(int i=0;i<m;i++)
+      {
+	 if(inputLine[i] == '*')
+	    posVector.push_back(pos);
+	 pos++;
+      }
+   }
+
+   //shift array for determining the eight surrounds to increment.
+   //sRow Below, neutral, Above
+   //sCol Left, neutral, Right
+   int sRow[] ={ 1,0,-1};
+   int sCol[] ={-1,0, 1};
+   for(int i =0; i<posVector.size();i++)
+   {
+      int r= posVector[i]/m, c=posVector[i]%m+1;
+      for(int k=0;k<3;k++)
+	 for(int j=0;j<3;j++)
+	       outArray[r+sRow[k]][c+sCol[j]]++;
+     
+   }
+   for(int i=0;i<posVector.size();i++)
+   {
+      int r= posVector[i]/m, c=posVector[i]%m+1;
+      outArray[r][c] = '*';
+   }
+}
