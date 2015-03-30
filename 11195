@@ -1,0 +1,125 @@
+#include <iostream>
+#include <vector>
+#include <bitset>
+
+using namespace std;
+
+//solve by recursively attempting each queen solution and seeing if a combo works
+//
+//
+
+//Global Variables
+int rowsUsed=0, leftDiag=0, rightDiag=0;
+int n, setBitsNeeded,col=0;
+int cases = 0;
+vector<bitset<16> > boardVector; 
+
+//Prototypes
+vector<bitset<16> > getBoard(const int& n);
+void recursiveCall(int rowsUsed,int leftDiag,int rightDiag);
+int indexOfp (int p);
+
+//***********************************************************/
+//MAIN
+//***********************************************************/
+int main()
+{
+	int caseNumber=1;
+	while(cin>>n && n!=0)
+	{
+		setBitsNeeded = (1 << n) - 1; //This will set n bits, which is what n queens would looklike in rows
+		boardVector = getBoard(n);
+		recursiveCall(0,0,0);	
+		cout<<"Case "<<caseNumber++<<": "<<cases<<endl;
+		cases=0;
+	}
+	return 0;
+}
+
+//***********************************************************/
+//Grab the input board
+//***********************************************************/
+vector<bitset<16> > getBoard(const int& n)
+{
+	char getAsterisks;
+	vector<bitset<16> > bVector;
+	bitset<16> cols;
+	for (int r = 0; r < n; r++)
+	{
+		for (int c = 0; c < n; c++)
+		{
+				cin>>getAsterisks;
+				if(getAsterisks == '*')
+					 cols[c]=0;
+				else cols[c]=1;
+		}
+		bVector.push_back(cols);
+	}
+	return bVector;
+}
+
+//*************************************************************/
+//base case when the col is equal to the size of the board n 
+//Diags used = topLeft -> botRight using R-C, leads to -n+1 -> n-1,
+//thus will use a shift of +(n-1), for 0 -> 2(n-1) = R-C+(n-1)
+//Diags used = topRight -> botLeft using R+C leads to 2 -> 2n
+//Will
+//*************************************************************/
+void recursiveCall(int rowsUsed,int leftDiag,int rightDiag)
+{
+	//Base Case, if all the rowsUsed equal n set bits, you have a solution
+	if(rowsUsed == setBitsNeeded)
+	{
+		cases++;
+		return;
+	}
+	//Create a mask showing what is available from the rowUsed, left/right Diags
+	//Get the 'or' amongst the bitsets for each bit, twiddle it opposite
+	//Means if any position is true, it will be taken and then conveyed as false
+	//'and' with setBitsNeeded will make any position that was true
+	// and make it false. meaning in AvailPositions, the zero's will not work/have queen
+	//AvailPositions represents the positions in the current column that will work
+	int availPositions = setBitsNeeded & (~(rowsUsed|leftDiag|rightDiag));
+	
+	//Keep Repeating while positions exist, will decrement by least significant bit each time
+	while(availPositions)
+	{
+		//This will make p equal to the least significant bit or the row with smallest index
+		int p = availPositions & -availPositions;	  
+		//This will turn off the least significant bit in availPositions
+		availPositions -= p; 
+		//Giving rowsUsed|p means you are turning the LSB = p, to on in RowsUsed for the next set
+		//Similar behaviour with the Left diagonal, except apply a left shift, as the diagonal fills
+		// 	in one column and row to right of where placed, this would keep occuring for the diagonal
+		if(boardVector[indexOfp(p)][col])
+		{
+		col++; 		
+		recursiveCall(rowsUsed|p,(leftDiag|p) << 1,(rightDiag|p) >> 1);
+		col--;
+		}		
+	}
+}
+//***************************************************
+//easy way to tell what row im looking at on the board matrix
+//////////////////////////////////////////////////////
+int indexOfp (int p)
+{
+switch(p)
+{
+ case 1: return 0;
+ case 2: return 1;
+ case 4: return 2;
+ case 8: return 3;
+ case 16: return 4;
+ case 32: return 5;
+ case 64: return 6;
+ case 128: return 7;
+ case 256: return 8;
+ case 512: return 9;
+ case 1024: return 10;
+ case 2048: return 11;
+ case 4096: return 12;
+ case 8192: return 13;
+default:cout<<"Deja Vu is usually a Glitch in the Matrix"<<endl;
+}
+}
