@@ -1,0 +1,178 @@
+//USing a Search method to check all possible solutions and assume each 
+//attempt is the correct one, doing so will mean a comparison between
+//each input results in the same number of correct and wrong place
+//should the correct and wrong place differ, then the number cannot
+//be the solution. Multiple correct lead to indeterminate
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <iomanip>
+
+using namespace std;
+
+int checkWrongPlaces(vector<int> &attempt,vector<int> &combination);
+int checkCorrectPlaces(vector<int> &attempt, vector<int> &combination);
+void displayAnswer(const int &intNumbersThatWork,const bool *numbersThatWork);
+bool testAttempt(vector<vector<int> > &combinationVector,int *attempt,vector<int> &wrongPlaceVector,vector<int> &correctVector);
+void solver(int &G);
+
+int main()
+{
+   int testCases;
+   cin>>testCases;
+   int G;
+   while(testCases--)
+   {
+      cin>>G;
+      solver(G);
+   }
+   return 0;
+}
+
+//***********************************************************
+//will solve the problem
+//***********************************************************
+void solver(int &G)
+{
+   char junkSlash;
+   int correct,wrongPlace;
+   vector<vector<int>> combinationVector;
+   vector<int> correctVector,wrongPlaceVector;
+  
+
+   while(G--)
+   {
+      vector<int> inputNumber;
+      char inNumber;
+      cin.ignore(1);
+      for(int i =0;i<4;i++)
+         {
+            cin.get(inNumber);
+            inputNumber.push_back(inNumber - '0');
+         }
+      combinationVector.push_back(inputNumber);
+      cin>>correct>>junkSlash>>wrongPlace;
+      correctVector.push_back(correct);
+      wrongPlaceVector.push_back(wrongPlace);
+   }
+
+   int attempt[4] ={-1,-1,-1,-1};
+   int intOfAttempt = -1;
+   bool numbersThatWork[10000];
+   int intNumbersThatWork=0;
+
+   for(int thous=0;thous<=9;thous++)//Counter
+   {
+      attempt[0]=thous;
+      for(int hund=0;hund<=9;hund++)
+      {
+        attempt[1]=hund;
+        for(int ten=0;ten<=9;ten++)
+        {
+            attempt[2]=ten;
+          for(int ones=0;ones<=9;ones++)
+          {
+             attempt[3]=ones;//End Of counter
+             intOfAttempt++;
+             numbersThatWork[intOfAttempt] = true;
+           
+            numbersThatWork[intOfAttempt]=testAttempt(combinationVector,attempt,wrongPlaceVector,correctVector);
+           
+            if(numbersThatWork[intOfAttempt]) 
+              if(++intNumbersThatWork>1)
+                goto displayAns;
+          }
+        }
+      }
+    }
+  displayAns:displayAnswer(intNumbersThatWork,numbersThatWork);
+} 
+
+
+/*******************************************************************/
+//Function checks the correct places of the attempt vs the input numbers
+//*******************************************************************
+      int checkCorrectPlaces(vector<int> &attempt, vector<int> &combination)
+{
+  int myGuessCorrect=0;
+  for(int i =0; i<4;i++)//Will check for all the Correct places;
+  {
+    if(attempt[i] == combination[i])
+    {
+     myGuessCorrect++;
+    attempt[i] = -1;
+    combination[i]= -2;
+    }
+  }
+  return myGuessCorrect;
+}
+
+/*******************************************************************/
+//Function checks the wrong places of the attempt vs the input numbers
+//*******************************************************************
+   int checkWrongPlaces(vector<int> &attempt,vector<int> &combination)
+{
+   int myGuessWrongPlace=0;
+
+   for(int i =0;i<4;i++)
+  {
+     for(int k=0;k<4;k++)
+    {
+       if(attempt[i] == combination[k])//Will check for all the Wrong Places
+      {
+   myGuessWrongPlace++;
+
+   // Howard: The following is the bad line: you are incrementing i out of bounds
+   //  i++;
+   attempt[i]=-1;
+   combination[k]=-2;
+      }
+    }
+  }
+   return myGuessWrongPlace;
+}
+
+//******************************************************************
+//Test the current attempt number to the set of input numbers
+//******************************************************************
+bool testAttempt(vector<vector<int> >& combinationVector,int *attempt,vector<int>& wrongPlaceVector,vector<int>& correctVector)
+{
+ for(unsigned int j=0;j<combinationVector.size();j++)//Iterate through input combos
+  {                 
+    vector<int> combination = combinationVector[j];
+    vector<int> attempt_t(attempt, attempt+4);      // Howard: need to reset the attempt vector for each guess
+
+    int myGuessCorrect=checkCorrectPlaces(attempt_t,combination);
+    int myGuessWrongPlace=checkWrongPlaces(attempt_t,combination);     
+   
+     if(myGuessWrongPlace != wrongPlaceVector[j] || myGuessCorrect != correctVector[j])
+      {
+        return false;
+      }
+    }
+  return true;
+}
+
+//******************************************************************
+//name says it all
+//******************************************************************
+void displayAnswer(const int &intNumbersThatWork,const bool *numbersThatWork)
+{
+  if(intNumbersThatWork < 1)
+    cout<<"impossible";
+   
+  else if(intNumbersThatWork >1)
+    cout<< "indeterminate";
+
+  else for(int i=0;i<=9999;i++)
+   {
+      if(numbersThatWork[i])
+         cout<<setfill('0') << setw(4) << i;
+   }
+   cout<<endl;
+ }
+
+Displaying 11195.cc.
