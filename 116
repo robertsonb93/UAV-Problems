@@ -1,0 +1,146 @@
+//116 Undirectional TSP
+//Will be given M*N matrix, and objective is to do a period of the columns N.
+//Rows will be between 1-10
+//colums betwen 1-100;
+//account for just one column - will find the min value
+//account for negative numbers
+//Tie Breakers - keep to the lower of rows
+//Note tha output is +1
+//What about case of 1 row?
+//Case 2 rows? 
+//case 3 rows?
+//case 1 col? cout min of col;
+//case 2 col? 
+//case 3 col?
+
+#include<iostream>
+#include<vector>
+
+using namespace std;
+
+vector<int> output;
+int input[11][101], working[11][101];
+int m,n;
+
+void Solver();
+int compareThreeAngles(const int& i, const int& j);
+void display();
+
+int main()
+{
+	while(cin>>m>>n)
+	{
+	for(int i=0;i<m;i++)
+		for(int j=0;j<n;j++)
+			cin>>input[i][j];	
+		Solver();
+		display();
+	}
+	return 0;
+}
+
+//*********************************************************
+//Solver will be filling in the working table to,
+//Approach is to work in reverse order of by going Right to 
+//Left and will fill in for each (i,j) will show its cheapest
+// path 
+//*********************************************************
+void Solver()
+{
+	//Set the up the last column as its values will be the same as the input
+	for(int i=0;i<m;i++)
+	working[i][n-1] = input[i][n-1];
+
+
+	//Begin constructing the working as its values are based off those to the
+	//right of it
+	for(int j=n-2;j>=0;j--)
+		for(int i=m-1;i>=0;i--)
+			{
+				working[i][j] = compareThreeAngles(i,j+1);
+				working[i][j] += input[i][j];
+			}
+}
+
+/*******************************************************************/
+//compare the three angles from a position i,j-1 , those 
+//positions being 
+// i+1,j
+// i,j
+// i-1,j
+//
+// if i+1 >= m, wrap to 0
+// if i-1 < 0  wrap to m-1
+//*******************************************************************
+int compareThreeAngles(const int& i, const int& j)
+{
+	int min = working[i][j];
+	for(int l=-1;l<2;l++)
+	{
+		int k=i+l;
+		if(k>=m)
+			k=0;
+			//do wrap to top row
+
+		else if(k<0)
+			k=m-1;
+			//do wrap to bott row
+
+		if(min > working[k][j])
+			min = working[k][j];
+	}
+
+	return min;
+}
+
+
+///*************************************************************************/
+//
+//*************************************************************************/
+void display()
+{
+	//Start witht he minimum trail from the left most point
+	output.push_back(0);//Holds a list of rows
+	for(int i =0; i<m;i++)
+	{
+		if(working[output.back()][0] > working[i][0])
+		{
+			output.pop_back();
+			output.push_back(i);
+		}
+	}
+
+	int sum=working[output.back()][0];
+	for(int i=1;i<n;i++)//iter colms
+	{
+		int prevRow = output.back();
+		if(output.back() == 0)
+		output.push_back(output.back());//Assume the the lowest row is the lowest value
+	else output.push_back(output.back()-1);
+
+		for(int j=prevRow-1; j<=prevRow+1 ;j++)//iter rows -1 -> +1 of previous row
+		{
+			int k = j;
+			
+			//Keep k within bounds and properly wrap-around
+			if(k<0)k=m-1;
+			else if(k>=m)k=0;
+			if(working[output.back()][i] > working[k][i] || (working[output.back()][i] == working[k][i] && k<output.back()))
+			{
+				output.pop_back();
+				output.push_back(k);			
+			}
+		}
+	}
+
+//Display	
+	void display();
+	for(int i=0;i<n;i++)
+	{
+		cout<<output[i]+1;
+		if(i < n-1)
+			cout<<" ";
+	}
+	cout<<endl<<sum<<endl;
+	output.clear();
+}
