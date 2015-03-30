@@ -1,0 +1,95 @@
+//Slurpys, must parse the input, Grammar Problem.
+//Slurpy is a slimp folowed by slump
+
+//Slumps - 
+//	Start with 'D' or 'E'
+// First character is followed by a string atleast one 'F', F string must be broken by end condition
+// Ends with the start of a Slump or 'G' aka, if encounter DF, EF, G
+//
+//Slimpy 
+// Starts with 'A'
+// 2 Char slimp will always be 'AH'
+// 'A' followed by 'B' followed by slimp (A) followed by 'C'
+// 'A' followed by a slump ('DF','EF') followed by 'C'
+
+//Use recursive functions to define if something is a Slurpy Slump Slimp
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+bool isSlurpy(string str);
+bool isSlump(string str,int start, int end);
+bool isSlimp(string str,int start, int end);
+
+int main()
+{
+	int numStrings;
+	cin>>numStrings;
+
+	string str;
+
+	cout<<"SLURPYS OUTPUT"<<endl;
+	while(numStrings--)
+	{
+		cin>>str;
+		if(isSlurpy(str))
+			cout<<"YES"<<endl;
+		else cout<<"NO"<<endl;
+	};
+	cout<<"END OF OUTPUT"<<endl;
+	return 0;		
+} 
+
+/**********************************************************/
+//
+bool isSlurpy(string str)
+{
+	int start=0;
+	if(str[start] == 'A')
+		for(int end=str.length()-1;end > start;end--)
+			if(isSlimp(str,start,end))
+				if(isSlump(str,end+1,str.length()-1))
+					return true;
+						
+	return false;
+}
+
+/***********************************************************/
+bool isSlimp(string str,const int start,const int end)
+{
+   if (str[start] != 'A') return false;
+   
+   if(end - start + 1 == 2) {
+      if (str[end] == 'H')
+	 return true;
+      else
+	 return false;
+   }
+	
+	if(str[start+1] == 'B')
+		if(isSlimp(str,start+2,end-1) && str[end] == 'C')
+			return true;
+		else return false;
+
+	if(isSlump(str,start+1,end-1) && str[end] == 'C')
+		return true;
+	else return false;
+}
+
+/***********************************************************/
+bool isSlump(string str,const int start,const int end)
+{
+   if((str[start] == 'D' || str[start] == 'E') && str[end] == 'G')
+   {
+   	//Atleast one 'F'
+   	//Must make sure that if a 'G' is seen it is at the end
+      for(int i=start+1;i<=end;i++)
+	 	if(str[i] != 'F')
+	    	if(i>start+1 && i==end || isSlump(str,i,end)) 
+	       	return true;
+	    	else return false;
+   }
+   return false;
+}
