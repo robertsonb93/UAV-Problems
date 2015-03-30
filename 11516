@@ -1,0 +1,115 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <cmath>
+#include <algorithm>
+
+//approach using binary search style, looking for the distance you must use to 
+//cover the street with n amount of access points, if for a given distance, you require more 
+//nodes, then bring up the minimum on the distance, if you could cover the distance. Bring down
+//the max and try again
+//find the max distance between between any house and node, but keep number as small as possible
+
+using namespace std;
+
+vector<int> getHouseNumbers(const int &m);
+double solver(const vector<int> &houseNumbers,const int& numOfRouters);
+bool check (const double& middle, const vector<int>& houses, const int& numOfRouters);
+
+
+//********************************************************
+//MAIN
+//********************************************************
+int main()
+{
+	int testCases;
+	cin>>testCases;
+	while(testCases--)
+	{		
+		int n,m;
+		cin>>n>>m; 
+		vector<int> houseNumbers = getHouseNumbers(m);
+
+		if (n>=m)
+		{
+	 	cout<<"0.0";
+		}
+		else
+		{
+			sort(houseNumbers.begin(),houseNumbers.end());
+			double result = solver(houseNumbers,n);
+			
+			cout<<setprecision(1)<<fixed<<result;
+		}	
+
+		cout<<endl;
+	}
+	return 0;
+}
+//*********************************************************
+//SEE NAME
+//*********************************************************
+vector<int> getHouseNumbers(const int &m)
+{
+	vector<int> houseNumber;
+	int house;
+	for(int i=0; i<m;i++)
+	{
+		cin>>house;
+		houseNumber.push_back(house);
+	} 
+	return houseNumber;
+}
+//*********************************************************
+//Function will binary search through the distances of
+//homes untill it finds a distance where min is approx max 
+//*********************************************************
+double solver(const vector<int> &houseNumbers,const int& numOfRouters)
+{
+	double low = 0;
+	double high = houseNumbers[houseNumbers.size()-1];
+	while(high - low > 0.01)//gets the numbers close enough that the difference will be rounded
+		{
+			double middle = (low+high)/2;
+			if(check(middle*2, houseNumbers, numOfRouters))
+			{
+				high = middle;
+			}
+			else 
+			{
+				low = middle;
+			}
+		}
+
+		double roundedTenth = round(low*10);
+		low =roundedTenth / 10.0;
+
+		return low;//can return high or low, as they will be near each other
+}
+
+//**********************************************************
+//check the number of routers needed to cover the houses
+//If returns true, then span of a router can be decreased
+//hence bring the high to the middle
+//else the span can be increased
+//**********************************************************
+bool check (const double& middle, const vector<int>& houses, const int& numOfRouters)
+{
+	double rangeOfWifi = middle + houses[0];
+	int routersUsed = 1;
+
+	for(int i = 0;i <houses.size();i++)
+	{
+		//If the range of the next house is out of reach
+		if (houses[i] > rangeOfWifi)
+		{
+			//Add another router at the distance of the next house
+			rangeOfWifi = houses[i] + middle;
+			routersUsed++;
+		}
+	}
+if(routersUsed <= numOfRouters)
+	return true;
+
+return false;
+}
