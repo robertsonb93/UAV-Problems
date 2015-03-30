@@ -1,0 +1,90 @@
+//The jackPot, will solve using a vector sum
+//use vecsum from code src.
+//vecsum will return the maximum sum
+//if all entries are negative, then sum = 0 and will output as losing streak
+
+
+#include<iostream>
+#include<vector>
+
+using namespace std;
+
+int vecsum(vector<int> v, int n, int &start, int &end);
+
+
+
+
+int main()
+{
+  vector<int> bets;
+  int sequenceLen,sl,curBet,output,s,e;
+  cin>>sequenceLen;
+  sl=sequenceLen;
+ 
+  while(sl)
+  {
+    while(sequenceLen--)
+    {
+      cin>>curBet;
+      bets.push_back(curBet);
+    }
+
+    if(output = vecsum(bets,sl,s,e))
+      cout<<"The maximum winning streak is "<<output<<"."<<endl;
+    
+    else
+      cout<<"Losing streak."<<endl;
+    
+    bets.clear();
+    cin>>sequenceLen;
+    sl = sequenceLen;
+  }
+
+
+
+	return 0;
+}
+
+
+
+//*****************************************************************
+//Borrow from code library, returns int of the highest
+// sequence of positive values
+//*****************************************************************
+int vecsum(vector<int> v, int n, int &start, int &end)
+{
+  int maxval = 0;
+  int max_end = 0;
+  int max_end_start, max_end_end;
+  int i;
+
+  start = max_end_start = 0;
+  end = max_end_end = -1;
+  for (i = 0; i < n; i++) {
+    if (v[i] + max_end >= 0) {
+      max_end = v[i] + max_end;
+      max_end_end = i;
+    } else {
+      max_end_start = i+1;
+      max_end_end = -1;
+      max_end = 0;
+    }
+
+    if (maxval < max_end) {
+      start = max_end_start;
+      end = max_end_end;
+      maxval = max_end;
+    } else if (maxval == max_end) {
+      /* put whatever preferences we have for a tie */
+      /* eg. longest subvector, and then the one that starts the earliest */
+      if (max_end_end - max_end_start > end - start ||
+          (max_end_end - max_end_start == end - start &&
+           max_end_start < start)) {
+        start = max_end_start;
+        end = max_end_end;
+        maxval = max_end;
+      }
+    }
+  }
+  return maxval;
+}
