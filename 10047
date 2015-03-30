@@ -1,0 +1,169 @@
+//10047 the monocycle
+//count the number of actions the cyclist has to make. output as seconds
+//always starts facing north, with green down.
+//must be color 0 touching ground when finished, direction no problem
+//is destination reachable and how many actions to reach
+//track if eachs quare has been a specific color, if all colors 5 are made, then mark the 6th to indicate impassable/notsolution 
+//Turning counts as action
+//4 Turn directions, for left turn, do direction + 3 mod 4, right turn is direction + 1 mod 4
+//What direction did it come from, what color was it at that direction and what number of actions achieved that
+
+
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <utility>
+
+using namespace std;
+
+//Keep track of a squares color, what Direction and num of actions gave that color
+struct squares
+{
+public:
+	squares() {
+				actions=row=col=currColor=currDr=0;
+				}
+
+	int row,col,currColor,currDr;
+	int actions;
+};
+
+int m,n;
+char board[25][25];
+int sRow,sCol,tRow,tCol;
+
+bool getInput();
+bool solver(int& actions);
+
+int main()
+{
+	int cases = 0;
+	while(getInput())
+	{
+		if(cases)
+			cout<<endl;
+		cout<<"Case #"<<++cases<<endl;
+		int actions;
+		if((solver(actions)))
+			cout<<"minimum time = "<<actions<<" sec"<<endl;
+		else
+			cout<<"destination not reachable"<<endl;
+	}
+
+	return 0;
+}
+
+//*********************************************************/
+//Get the input for each testcase
+//*********************************************************/
+bool getInput()
+{
+	char square;
+	cin>>m>>n;
+
+	if(!(m && n))
+		return false;
+
+	for(int i=0;i<m;i++)
+	{
+		for(int j=0;j<n;j++)
+			{
+				cin>>square;
+				if(square == 'S')
+				{
+					sRow = i;
+					sCol = j;			
+				}
+				else if(square == 'T')
+				{
+					tRow = i;
+					tCol = j;					
+				}
+				board[i][j] = square;
+			}
+	}
+	return true;
+}
+
+
+//*********************************************************/
+//Solve the test case
+//Attempt a BFS on each possible direction, when you get
+//Try and mark visited squares as unvisitable, change the vector at that position
+// to a *
+//Add unmarked neighbors, open neighbours to a queue
+//to the T square you have succeeded
+//Will get if solution is found, and currActions
+//*********************************************************/
+bool solver(int& actions)
+{
+	int drCol[4] = {0,1,0,-1}, drRow[4] = {-1,0,1,0};
+
+
+	squares start;
+	start.row = sRow;
+	start.col = sCol;
+	queue <squares> visitNext;
+	visitNext.push(start);
+
+	//At this row, this col, across the 5 colors seen this direction?
+	bool seenBoard[25][25][5][4];
+	for(int i=0;i<25;i++)
+		for(int j=0;j<25;j++)
+			for(int k=0;k<5;k++)
+				for(int l=0;l<4;l++)
+					seenBoard[i][j][k][l] = false;
+
+	seenBoard[sRow][sCol][0][0] = true;
+	
+	while(!visitNext.empty()) 
+	{
+			squares curr = visitNext.front();
+				
+			visitNext.pop();
+		
+		//Is it the end?
+		if (curr.row == tRow && curr.col == tCol && curr.currColor == 0)
+		{
+			actions = curr.actions;
+			 return true;
+		}
+
+		//for each valid neighbor, and in bounds and unseen push onto queue
+		if (!(seenBoard[curr.row][curr.col][curr.currColor][(curr.currDr+3)%4]))//push Right turn
+		{	
+		   seenBoard[curr.row][curr.col][curr.currColor][(curr.currDr+3)%4] = true;
+		   curr.currDr = (curr.currDr+3)%4;
+		   curr.actions++;	
+		   
+		   visitNext.push(curr);
+		   curr.currDr = (curr.currDr+1)%4;
+		   curr.actions--;
+		}
+		if(!(seenBoard[curr.row][curr.col][curr.currColor][(curr.currDr+1)%4]))//Push left turn
+		{
+		   seenBoard[curr.row][curr.col][curr.currColor][(curr.currDr+1)%4] = true;
+		   curr.currDr = (curr.currDr+1)%4;
+		   curr.actions++;				
+		   visitNext.push(curr);
+		   curr.currDr = (curr.currDr+3)%4;
+		   curr.actions--;
+		}
+		
+		if(curr.row + drRow[curr.currDr] < m && curr.col + drCol[curr.currDr] < n)
+		if(curr.row + drRow[curr.currDr] >= 0 && curr.col + drCol[curr.currDr] >= 0)
+		{
+			if(board[curr.row+drRow[curr.currDr]][curr.col+drCol[curr.currDr]] != '#')
+			if(!(seenBoard[curr.row+drRow[curr.currDr]][curr.col+drCol[curr.currDr]][(curr.currColor+1)%5][curr.currDr]))//push forward
+			{
+				seenBoard[curr.row+drRow[curr.currDr]][curr.col+drCol[curr.currDr]][(curr.currColor+1)%5][curr.currDr] =true;
+				curr.currColor = (curr.currColor+1)%5;
+				curr.row += drRow[curr.currDr];
+				curr.col += drCol[curr.currDr];
+				curr.actions++;
+				visitNext.push(curr);
+			}
+		}
+	}	
+	return false;
+}
