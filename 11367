@@ -1,0 +1,196 @@
+//Fuel Tank, will use djisktra's 
+//m= #roads/ how much fuel needed
+//n=cities, with gasprices
+//Decision based on location,fuel level
+//Nodes are a pair <location,fuel level>
+//Can revisit a node for a fuel up
+//Paths that can be taken are the neighbors, or revisit the current node and fuel up a liter
+//So a path with cost a liter, or add a liter at a price
+//Thus each path has a price?
+
+
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cassert>
+#include <queue>
+
+/*
+ * Dijkstra's Algorithm for sparse graphs
+ *
+ * Author: Howard Cheng
+ *
+ * Given a weight matrix representing a graph and a source vertex, this
+ * algorithm computes the shortest distance, as well as path, to each
+ * of the other vertices.  The paths are represented by an inverted list,
+ * such that if v preceeds immediately before w in a path from the
+ * source to vertex w, then the path P[w] is v.  The distances from
+ * the source to v is given in D[v] (-1 if not connected).
+ *
+ * Call get_path to recover the path.
+ *
+ * Note: Dijkstra's algorithm only works if all weight edges are
+ *       non-negative.
+ *
+ * This version works well if the graph is not dense.  The complexity
+ * is O((n + m) log (n + m)) where n is the number of vertices and
+ * m is the number of edges.
+ *
+ */
+
+
+using namespace std;
+
+
+int price;
+int capacity;
+
+struct Edge {
+  int to;
+  int weight;       // can be double or other numeric type
+  Edge(int t, int w)
+    : to(t), weight(w) { }
+};
+  
+typedef vector<Edge>::iterator EdgeIter;
+
+struct Graph {
+  vector<Edge> *nbr;
+  int num_nodes;
+  Graph(int n)
+    : num_nodes(n)
+  {
+    nbr = new vector<Edge>[num_nodes];
+  }
+
+  ~Graph()
+  {
+    delete[] nbr;
+  }
+
+  // note: There is no check on duplicate edge, so it is possible to
+  // add multiple edges between two vertices
+  //
+  // If this is an undirected graph, be sure to add an edge both
+  // ways
+  void add_edge(int u, int v, int weight)
+  {
+    nbr[u].push_back(Edge(v, weight));
+  }
+};
+
+/* assume that D and P have been allocated */
+void dijkstra(const Graph &G, int src, vector<int> &D, vector<int> &P)
+{
+  typedef pair<int,int> pii;
+
+  int n = G.num_nodes;
+  vector<bool> used(n, false);
+  priority_queue<pii, vector<pii>,  greater<pii> > fringe;
+
+  D.resize(n);
+  P.resize(n);
+  fill(D.begin(), D.end(), -1);
+  fill(P.begin(), P.end(), -1);
+
+  D[src] = 0;
+  fringe.push(make_pair(D[src], src));
+
+  while (!fringe.empty()) {
+    pii next = fringe.top();
+    fringe.pop();
+    int u = next.second;
+    if (used[u]) continue;
+    used[u] = true;
+
+    for(EdgeIter it = G.nbr[u].begin(); it != G.nbr[u].end(); ++it) {
+      int c2 = (it->to)%101; 
+      if(c2 <= capacity)
+     {
+      int v = it->to;
+      int weight = it->weight + next.first;
+      if (used[v]) continue;
+      if (D[v] == -1 || weight < D[v]) {
+  D[v] = weight;
+  P[v] = u;
+  fringe.push(make_pair(D[v], v));
+      }
+      }
+    }
+  }
+}
+
+int get_path(int v, const vector<int> &P, vector<int> &path)
+{
+  path.clear();
+  path.push_back(v);
+  while (P[v] != -1) {
+    v = P[v];
+    path.push_back(v);
+  }
+  reverse(path.begin(), path.end());
+  return path.size();
+}
+
+
+
+/*MAAAAAAAAAAAAAAAAAAIN*/
+//Multiply the cities locations by fuelCap +1 to allow room for all the possible fuel levels in there
+//Locations
+int main(void)
+{
+  int n,temp,m;
+  
+  cin>>n>>m;
+  vector<int> fuel;
+  for(int i=0;i<n;i++)
+  {
+    cin>>temp;
+    fuel.push_back(temp);
+  }
+
+    vector<int> u, v, w;
+  for(int i=0;i<m;i++)
+    {
+      cin>>temp;
+      u.push_back(temp);
+      cin>>temp;
+      v.push_back(temp);
+      cin>>temp;
+      w.push_back(temp);
+    }
+
+   /***************************************/
+      Graph G(n*101+100);
+      //Need to build the graph of all possible connections, that is every node is a location at a fuel level
+      //Locations will be represented by location*101, thanks to lucas
+      for(int l=0;l<n;l++)
+        for(int c=0;c<100;c++)
+          G.add_edge(l*101 + c,l*101 +c+1,fuel[l]);
+
+      for(int l=0;l<u.size();l++)
+        for(int c=0;c<101;c++)
+          if(c-w[l] >= 0)
+          {
+            G.add_edge(u[l]*101+c,v[l]*101+(c-w[l]),0);
+            G.add_edge(v[l]*101+c,u[l]*101+(c-w[l]),0);
+          }
+        /*****************************/
+
+        int quaries,start,end;
+      cin>>quaries;
+      while(quaries--)
+      {
+        cin>>capacity>>start>>end;
+        vector<int> Price, P;
+        dijkstra(G,start*101,Price,P);
+       
+       if(Price[end*101]>=0)
+        cout <<Price[end*101] << endl;
+        else cout<<"impossible"<<endl;
+      }
+  return 0;
+}
+
+Displaying 10511.cc.
