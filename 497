@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+//Recognized the Problem is looking for the longest increasing subsequence
+
+using namespace std;
+
+void computeLIS();
+void Output();
+
+vector<pair<int, int > > numbers; //first will be the number, second will be its LIS value
+vector<int> LIS;
+int maxLIS;
+
+
+int main()
+{
+	int testCases;
+	int num;
+	string input;
+	
+getline(cin,input);
+testCases = input[0] - '0';
+	while(testCases)
+	{
+		while(1)
+		{
+			bool isRepeat=false;
+			getline(cin,input);
+			if(input.size()>0)
+			{
+				num = stoi(input);
+				for(int i=0; i<numbers.size();i++)
+					if(numbers[i].first == num)
+						isRepeat=true;
+					if(!isRepeat)
+						numbers.push_back(make_pair(num,1));//Push numb into vector, LIS=1
+				isRepeat=false;
+			}
+			
+			if(cin.peek() == '\n' || cin.eof())
+			{
+				computeLIS();
+				Output();
+				break;
+			}
+
+		}
+		if(--testCases)
+			cout<<endl;
+	}
+	return 0;
+}
+
+//***************************************************************************//
+//Function will return the LIS and build a list of the LIS
+//If the number next in the vector is greater then the number before it 
+//it will adopt that numbers LIS
+//*****************************************************************************
+void computeLIS()
+{
+	maxLIS=0;
+	if(numbers.size() > 0)
+		maxLIS=1;
+
+	for(int i=0;i<numbers.size();i++)
+	{
+		for(int j=0;j<i;j++)
+		{
+			if(numbers[i].first > numbers[j].first)
+			{
+				if(numbers[i].second <= numbers[j].second)
+				{
+					numbers[i].second = numbers[j].second+1;
+					if(maxLIS < numbers[i].second)
+						maxLIS = numbers[i].second;
+				}
+			}
+		}
+	}
+
+	int nextLISnum = maxLIS;
+	for(int i=numbers.size()-1;i>=0;i--)
+	{
+		if(nextLISnum == numbers[i].second)
+		{
+			LIS.push_back(numbers[i].first);
+			if((--nextLISnum) == 0)
+				break;
+		}
+	}
+	sort(LIS.begin(),LIS.end());
+}
+
+//*****************************************************************************
+//OUTPUT
+void Output()
+{
+	cout<<"Max hits: "<<maxLIS<<endl;
+		
+		for(int i =0;i<LIS.size();i++)
+			cout<<LIS[i]<<endl;
+
+		LIS.clear();
+		numbers.clear();
+}
