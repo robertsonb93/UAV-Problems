@@ -1,0 +1,108 @@
+#include<iostream>
+#include<queue>
+#include<functional>
+#include<vector>
+
+using namespace std;
+
+//Problem asks for the i-th smallest value, ie,3 would return a sorted vector[2]
+//use a min and max Priority_queue to keep the max.top as the i-th value
+//force i elements into the max heap, and the rest, k-i, into min heap
+int main()
+{
+   int numDatasets;
+   cin>>numDatasets;
+   int M,N;
+
+   
+   while(numDatasets != 0)
+   {     
+      cin>>M>>N;
+      priority_queue<int, vector<int>, greater<int> > minHeap;
+      priority_queue<int> maxHeap;//Top will be the desired value
+      queue<int> ADD,output;
+      int input;
+     
+      //Put first element into the max heap, counts as first ADD
+      cin>>input;
+      M--;
+      maxHeap.push(input);
+
+     
+      //get the inputs for ADD list
+      while(M != 0)
+      {
+	 cin>>input;
+	 ADD.push(input); 
+	 M--;
+      }
+
+      int i=0,ADDcompleted=1;
+      //This gets the GET list and builds the queue at the same time
+      while(N!=0)
+      {
+
+	 cin>>input;
+	 i++;
+
+	 if(ADDcompleted < input)
+	 {
+ //Want to add up to the needed amount and then adjust the queue as needed
+	    //There is 4 cases here to look out for.
+	    for(;ADDcompleted<input;ADDcompleted++)
+	    {
+//case 1
+	       if(maxHeap.top() > ADD.front() && maxHeap.size() < i)
+		  maxHeap.push(ADD.front());
+
+//case 2
+	       else if(maxHeap.top() > ADD.front() && maxHeap.size() >= i)
+	       {
+		  minHeap.push(maxHeap.top());
+		  maxHeap.pop();
+		  maxHeap.push(ADD.front());
+	       }
+
+//case 3	       
+	       else if(maxHeap.top() <= ADD.front() && maxHeap.size() < i)
+	       {
+		  if(minHeap.size()>0)
+		  {
+		     if(minHeap.top() < ADD.front())
+		     {
+			maxHeap.push(minHeap.top());
+			minHeap.pop();
+			minHeap.push(ADD.front());
+		     }
+		     else
+			maxHeap.push(ADD.front());
+		  }
+		  else
+		     maxHeap.push(ADD.front());
+	       }
+
+//case 4	       
+	       else if(maxHeap.top() <= ADD.front() && maxHeap.size() >= i)
+		  minHeap.push(ADD.front());
+
+	       ADD.pop();
+	    }
+	 }
+	 //This was if the same GET keeps being called such as 1 2 6 6 
+	 else if(minHeap.size() > 0)
+	 {
+	    maxHeap.push(minHeap.top());
+	    minHeap.pop();
+	 }
+	
+	 cout<<maxHeap.top()<<endl;
+	 N--;
+      }
+      
+      numDatasets--;
+      if(numDatasets > 0)
+      cout<<endl;
+   }
+   return 0;
+}
+
