@@ -1,0 +1,65 @@
+Drive
+.
+Folder Path
+My Drive
+3200
+Folders and views
+My Drive
+Shared with Me
+Recent
+Starred
+Trash
+.
+C++
+11136.cc
+C++
+501.cc
+C++
+793.cc
+C++
+11136.cc
+Last month
+B
+Youuploaded an item
+Feb 3
+C++
+11136.cc
+No recorded activity before February 3, 2015
+2 GB used
+11136.cc
+
+#include <iostream>
+#include <set>
+
+//Utilize a multiset to keep track of the elements that are max and min without
+//need to sort, the multiset is the URN!!!
+using namespace std;
+
+int main()
+{
+   int n;
+   while(cin>>n && n!=0)
+   {
+      long long sumPayed=0;
+      multiset<int> bills;
+      int k,x;
+      for(int t=0;t<n;t++) // the number of days
+      {
+	 cin>>k;
+	 for(int j=0;j<k;j++) //the bills in the days
+	 {
+	    cin>>x;
+	    bills.insert(x);
+	 }
+	 multiset<int>:: iterator max = bills.end();
+	 multiset<int>:: iterator min = bills.begin();
+	 max--;
+	 sumPayed += *max - *min;
+	 bills.erase(max);
+	 bills.erase(min);
+      }
+      cout<<sumPayed<<endl;
+   }
+   return 0;
+}
+
