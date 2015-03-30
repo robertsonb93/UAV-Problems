@@ -1,0 +1,39 @@
+//674 Will DP by building table with values of how many coins to use
+//Build from the bottom up and iterate through coins, each time,
+// 
+
+#include<iostream>
+
+
+using namespace std;
+
+int coins[]={1,5,10,25,50};
+int coinsAtValue[7490];
+
+void buildtable()
+{
+	//count through the coins
+	for(int i=0; i<5;i++)
+
+		//Using each coin, figure out what the value is based off of
+		//What it would be with one less that coin.
+		//hence using 10 cent coins, there is only one more way to make 30
+		//then there is for 20 which is one more then 10, and 1 more then 0;
+		//Do this for each coin.
+		//set J to coins[i] such that each coin isnt trying to be used before its value.
+		for(int j=coins[i];j<7490;j++)
+			coinsAtValue[j] = coinsAtValue[j] +coinsAtValue[j-coins[i]];
+};
+
+int main()
+{
+	fill(coinsAtValue+1,coinsAtValue+7490,0);
+	coinsAtValue[0] = 1;
+	buildtable();
+	int coinVal;
+	while(cin>>coinVal)
+	{
+		cout<<coinsAtValue[coinVal]<<endl;
+	}
+	return 0;
+}
