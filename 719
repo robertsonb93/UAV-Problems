@@ -1,6 +1,11 @@
 //Credits to Howard Cheng for the suffix array structure
 
 
+//Will use a suffix array to find all the suffixes of the string, 
+//Find the first suffix that is the entire string length
+//The nature of suffix array says this will be the lexicographically least suffix
+
+
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -186,25 +191,28 @@ int main()
 {
   string str;
   int cases,strLength;
-  int* sarray = new int[12000];
+  int* sarray = new int[20000];
+  int *lcp = new int[20000];
   unsigned int i;
 	
   cin>>cases;
   while (cases--) 
   {
-  	cin>>str;
-  	strLength = str.length();
-  	str += str;
-
+    cin>>str;
+    strLength = str.length();
+    str += str;
+    
     build_sarray(str, sarray);
+    compute_lcp(str, sarray, lcp);
     for(i = 0; i < str.length(); i++) 
-    {
-    	if(sarray[i]<strLength)
-      	{
-      		cout << sarray[i]+1<<endl;
-          break;
-    	}
-    }
-  }
-  return 0;
-}
+      {
+    	if(sarray[i]<strLength) 
+	  {
+	    int ans = sarray[i]+1;
+	    for (int j = i+1; j < str.length(); j++) {
+	      if (lcp[j] >= strLength) {
+		ans = min(ans, sarray[j]+1);
+	      } else {
+		break;
+	      }
+	    }
