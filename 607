@@ -1,0 +1,142 @@
+//Will attempt to use Greedy to find the minimum lecture needed, this would
+// consist of fitting every value t into a lecture as early as possible
+//But does this leave the best Dissatisfaction amount?
+//Would the dissatisfaction benefit if a time was moved for its current lecture 
+// to the next one?
+
+
+//Idea would be that we need an array of dissatisfaction at each
+//	lecture? 
+//
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+
+using namespace std;
+
+bool getInput();
+void calculateLectures();
+int calculateDissatisfaction(const int lect, const int topic);
+int howMuchDissatisfaction(int timeleft);
+void output();
+
+
+int Lectures=0;
+int LectureLength,numTopics=0,C;
+int topics[1000];
+int DI[1001][1001];
+bool DICalculated[1001][1001];
+int caseCounter=0;
+int Diss=0;
+const int MAX_INT = (1<<31)-1;
+
+int main()
+{
+	while(getInput())
+	{
+		if(caseCounter++)
+			cout<<endl;
+	calculateLectures();
+	Diss = calculateDissatisfaction(0,0);
+	output();
+	}
+	return 0;
+}
+
+//Simple Input function, Returns false if 0 is cin for number of topics
+bool getInput()
+{
+	cin>>numTopics;
+	if(numTopics)
+	{
+		for(int i=0;i<=numTopics;i++)
+			for(int j=0;j<=numTopics;j++)
+				{DICalculated[i][j]= false;DI[i][j]=0;}
+			
+		int i=0;
+		cin>>LectureLength;
+		cin>>C;
+		while(i < numTopics)
+			cin>>topics[i++];
+		return true;
+	}
+	return false;
+}
+
+
+//greedily calculate the least number of the lectures needed for the number
+//topics(times) given
+void calculateLectures()
+{
+	int timeLeft = LectureLength;
+	Lectures=1;
+
+	for(int i=0;i<numTopics;i++)
+	{
+		if(timeLeft-topics[i] < 0)
+			{
+				Lectures++;
+				timeLeft = LectureLength - topics[i];
+			}
+		else timeLeft -= topics[i];	
+	}
+}
+
+//Base case - if reached max lectures, check if reached # of topics return 0 else return MAX_INT
+//otherwise for each topic scheduled into a lecture, figure out the DI and recurse 
+//Need to implement Memorization
+int calculateDissatisfaction(const int lect, const int topic)
+{
+	if(lect == Lectures)
+	{
+		if(topic == numTopics) 
+			return 0;
+		else 
+			return MAX_INT;
+	}
+
+	int minAns = MAX_INT;
+	int tempTime = LectureLength;
+	for(int i = topic;i<numTopics;i++)
+	{
+		//TRy adding a topic to the lecture, and run with it.
+		//Then try adding another topic to the lecture and see what the DI becomes
+		//Can break when out of time
+	   if((tempTime -= topics[i]) < 0)
+	      break;
+	   
+	   if(DICalculated[lect+1][i+1] == false)
+	   {
+	   		DI[lect+1][i+1] = calculateDissatisfaction(lect+1, i+1);
+	   		DICalculated[lect+1][i+1] = true;
+		}
+	   if (DI[lect+1][i+1] != MAX_INT) {
+	      minAns = min(minAns,DI[lect+1][i+1]+howMuchDissatisfaction(tempTime));
+	   }
+	}
+	return minAns;
+}
+
+//Short function for DI applied concerning the time remaining given.
+int howMuchDissatisfaction(int timeleft)
+{
+	if(timeleft == 0)
+		return 0;
+	
+	if(timeleft <=10)
+		return -C;
+	
+	return (timeleft-10)*(timeleft-10);
+}
+
+
+
+void output()
+{
+	cout<<"Case "<<caseCounter<<":"<<endl;
+	cout<<"Minimum number of lectures: "<<Lectures<<endl;
+	cout<<"Total dissatisfaction index: "<<Diss<<endl;
+}
