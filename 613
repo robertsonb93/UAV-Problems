@@ -1,0 +1,104 @@
+
+//Need to recursively call solver function, 
+//solver will return the vlaue J, the number of iterative steps of finding a self inventorying number
+//if j=0, it is self inventorying
+//if j=15 it can not be classified after 15 iterations
+// How to check J, take each character in string, and print the occurance of it 
+// numerically by the character value
+// compare if the constructed matches the input
+
+// How to check K, Keep an array of 15 strings, if at any iteration, a
+// repeat is seen in numbers. 
+
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <sstream>
+
+using namespace std;
+
+
+int Solver(const string& input);
+string inventory(const string& input);
+ 
+string strArray[16];
+int K, depth;
+
+int main()
+{
+	string input;
+
+	while(cin>>input && input != "-1" )
+	{
+		if(input[0] == '-')
+			continue;
+
+		depth =-1,K=0;
+		for(int i=0;i<15;i++)
+			strArray[i] = "";
+
+
+		int j=Solver(input);
+		j--;
+		if(!j)//If j ==0
+			cout<<input<<" is self-inventorying"<<endl;
+		else if(j<15)//J returned valid amount 
+			cout<<input<<" is self-inventorying after "<<j<< " steps"<<endl;
+		else if(K)//J did not return valid amount, thus could be loop
+			cout<<input<<" enters an inventory loop of length "<<K<<endl;
+			//no loop, no J
+		else cout<<input<<" can not be classified after 15 iterations"<<endl;
+	}
+
+}
+
+
+//Returns a J value based off recrusion
+//Base case is when either, j > 15, the strings match, or seen the string twice.
+//Recurse with the new inventory of the given input
+int Solver(const string& input)
+{
+	depth++;
+	if(depth > 15)
+		return 16;
+
+	else 
+		for(int i=0;i<15;i++)
+			if(input==strArray[i])
+				{
+					K=depth-i;
+					return 16;
+				}
+
+	strArray[depth] = input;
+	string output = inventory(input);
+
+	if(output == input)
+		return 1;
+
+	else 
+		return Solver(output)+1;
+}
+
+//determine the inventory of a string input
+string inventory(const string& input)
+{
+	int numbers[11]={0,0,0,0,0,0,0,0,0,0,0};
+	string output ="";
+	for(int i=0;i<input.length();i++)
+	{
+		numbers[input[i]-'0']++; 
+	}
+	for(int i=0;i<10;i++)
+		{
+			if(numbers[i])
+			{	ostringstream ss;
+				ss<<numbers[i]<<i;
+				output += ss.str();
+
+			}
+
+		}
+	return output;
+}
